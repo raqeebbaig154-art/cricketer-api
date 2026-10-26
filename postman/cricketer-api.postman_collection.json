@@ -1,0 +1,577 @@
+{
+  "info": {
+    "name": "Cricketer Management API - CRUD Tests",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Postman tests for the Cricketer Management REST API (Express + SQLite)."
+  },
+  "item": [
+    {
+      "name": "TC01 - Create a valid cricketer",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"TC01: status code is 201\", function () { pm.response.to.have.status(201); });",
+              "pm.test(\"TC01: response is JSON\", function () { pm.response.to.be.json; });",
+              "const body = pm.response.json(); pm.collectionVariables.set(\"id\", body.id);",
+              "pm.test(\"TC01: response contains generated id and same data\", function () { const body = pm.response.json(); pm.expect(body.id).to.be.a('number'); pm.expect(body.name).to.eql('Babar Azam'); pm.expect(body.jerseyNo).to.eql(56); });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/cricketers",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "cricketers"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Babar Azam\",\n  \"jerseyNo\": 56,\n  \"team\": \"Pakistan\",\n  \"role\": \"Batsman\",\n  \"matches\": 120,\n  \"runs\": 5000\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "TC02 - Retrieve all cricketers",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"TC02: status code is 200\", function () { pm.response.to.have.status(200); });",
+              "pm.test(\"TC02: response is JSON\", function () { pm.response.to.be.json; });",
+              "pm.test(\"TC02: returns an array containing the created record\", function () { const body = pm.response.json(); pm.expect(body).to.be.an('array'); pm.expect(body.map(x => x.id)).to.include(Number(pm.collectionVariables.get('id'))); });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/cricketers",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "cricketers"
+          ]
+        }
+      }
+    },
+    {
+      "name": "TC03 - Retrieve a single cricketer by id",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"TC03: status code is 200\", function () { pm.response.to.have.status(200); });",
+              "pm.test(\"TC03: response is JSON\", function () { pm.response.to.be.json; });",
+              "pm.test(\"TC03: returns the requested record\", function () { const body = pm.response.json(); pm.expect(body.id).to.eql(Number(pm.collectionVariables.get('id'))); pm.expect(body.team).to.eql('Pakistan'); });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/cricketers/{{id}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "cricketers",
+            "{{id}}"
+          ]
+        }
+      }
+    },
+    {
+      "name": "TC04 - Update an existing cricketer",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"TC04: status code is 200\", function () { pm.response.to.have.status(200); });",
+              "pm.test(\"TC04: response is JSON\", function () { pm.response.to.be.json; });",
+              "pm.test(\"TC04: returned data shows the updated values\", function () { const body = pm.response.json(); pm.expect(body.matches).to.eql(125); pm.expect(body.runs).to.eql(5400); });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/cricketers/{{id}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "cricketers",
+            "{{id}}"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Babar Azam\",\n  \"jerseyNo\": 56,\n  \"team\": \"Pakistan\",\n  \"role\": \"Batsman\",\n  \"matches\": 125,\n  \"runs\": 5400\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "TC05 - Confirm update persisted in database",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"TC05: status code is 200\", function () { pm.response.to.have.status(200); });",
+              "pm.test(\"TC05: response is JSON\", function () { pm.response.to.be.json; });",
+              "pm.test(\"TC05: database holds updated values\", function () { const body = pm.response.json(); pm.expect(body.matches).to.eql(125); pm.expect(body.runs).to.eql(5400); });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/cricketers/{{id}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "cricketers",
+            "{{id}}"
+          ]
+        }
+      }
+    },
+    {
+      "name": "TC06 - Create with required fields missing",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"TC06: status code is 400\", function () { pm.response.to.have.status(400); });",
+              "pm.test(\"TC06: response is JSON\", function () { pm.response.to.be.json; });",
+              "pm.test(\"TC06: error lists name, team and role problems\", function () { const body = pm.response.json(); pm.expect(body.error).to.eql('Validation failed'); pm.expect(body.details.length).to.be.at.least(3); });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/cricketers",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "cricketers"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"jerseyNo\": 10\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "TC07 - Create with invalid role and negative runs",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"TC07: status code is 400\", function () { pm.response.to.have.status(400); });",
+              "pm.test(\"TC07: response is JSON\", function () { pm.response.to.be.json; });",
+              "pm.test(\"TC07: error mentions role and runs\", function () { const body = pm.response.json(); const t = body.details.join(' '); pm.expect(t).to.include('role'); pm.expect(t).to.include('runs'); });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/cricketers",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "cricketers"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Test Player\",\n  \"jerseyNo\": 11,\n  \"team\": \"Pakistan\",\n  \"role\": \"Umpire\",\n  \"runs\": -5\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "TC08 - Create with duplicate jersey number",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"TC08: status code is 409\", function () { pm.response.to.have.status(409); });",
+              "pm.test(\"TC08: response is JSON\", function () { pm.response.to.be.json; });",
+              "pm.test(\"TC08: conflict error returned\", function () { const body = pm.response.json(); pm.expect(body.error).to.eql('Conflict'); });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/cricketers",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "cricketers"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Another Player\",\n  \"jerseyNo\": 56,\n  \"team\": \"Pakistan\",\n  \"role\": \"Bowler\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "TC09 - Create with malformed JSON body",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"TC09: status code is 400\", function () { pm.response.to.have.status(400); });",
+              "pm.test(\"TC09: response is JSON\", function () { pm.response.to.be.json; });",
+              "pm.test(\"TC09: malformed JSON error returned\", function () { const body = pm.response.json(); pm.expect(body.error).to.eql('Malformed JSON'); });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/cricketers",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "cricketers"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{ \"name\": \"Broken\", ",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "TC10 - Get a nonexistent id",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"TC10: status code is 404\", function () { pm.response.to.have.status(404); });",
+              "pm.test(\"TC10: response is JSON\", function () { pm.response.to.be.json; });",
+              "pm.test(\"TC10: Not Found error returned\", function () { const body = pm.response.json(); pm.expect(body.error).to.eql('Not Found'); });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/cricketers/9999",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "cricketers",
+            "9999"
+          ]
+        }
+      }
+    },
+    {
+      "name": "TC11 - Update a nonexistent id",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"TC11: status code is 404\", function () { pm.response.to.have.status(404); });",
+              "pm.test(\"TC11: response is JSON\", function () { pm.response.to.be.json; });",
+              "pm.test(\"TC11: Not Found error returned\", function () { const body = pm.response.json(); pm.expect(body.error).to.eql('Not Found'); });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/cricketers/9999",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "cricketers",
+            "9999"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Ghost\",\n  \"jerseyNo\": 99,\n  \"team\": \"None\",\n  \"role\": \"Bowler\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "TC12 - Get with a non-numeric id",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"TC12: status code is 400\", function () { pm.response.to.have.status(400); });",
+              "pm.test(\"TC12: response is JSON\", function () { pm.response.to.be.json; });",
+              "pm.test(\"TC12: Invalid id error returned\", function () { const body = pm.response.json(); pm.expect(body.error).to.eql('Invalid id'); });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/cricketers/abc",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "cricketers",
+            "abc"
+          ]
+        }
+      }
+    },
+    {
+      "name": "TC13 - Delete an existing cricketer",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"TC13: status code is 200\", function () { pm.response.to.have.status(200); });",
+              "pm.test(\"TC13: response is JSON\", function () { pm.response.to.be.json; });",
+              "pm.test(\"TC13: confirmation message returned\", function () { const body = pm.response.json(); pm.expect(body.message).to.include('deleted'); });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/cricketers/{{id}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "cricketers",
+            "{{id}}"
+          ]
+        }
+      }
+    },
+    {
+      "name": "TC14 - Confirm deleted record cannot be retrieved",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"TC14: status code is 404\", function () { pm.response.to.have.status(404); });",
+              "pm.test(\"TC14: response is JSON\", function () { pm.response.to.be.json; });",
+              "pm.test(\"TC14: Not Found error returned\", function () { const body = pm.response.json(); pm.expect(body.error).to.eql('Not Found'); });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/cricketers/{{id}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "cricketers",
+            "{{id}}"
+          ]
+        }
+      }
+    },
+    {
+      "name": "TC15 - Delete the already-deleted record",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"TC15: status code is 404\", function () { pm.response.to.have.status(404); });",
+              "pm.test(\"TC15: response is JSON\", function () { pm.response.to.be.json; });",
+              "pm.test(\"TC15: Not Found error returned\", function () { const body = pm.response.json(); pm.expect(body.error).to.eql('Not Found'); });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/cricketers/{{id}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "cricketers",
+            "{{id}}"
+          ]
+        }
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000"
+    },
+    {
+      "key": "id",
+      "value": ""
+    }
+  ]
+}
